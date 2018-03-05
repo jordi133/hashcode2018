@@ -32,8 +32,12 @@ object SecondAssignment {
         }
         val canGetBonus = carsWithArrival.exists(_._2 <= 0)
         // select one of these
-        val selectedCar = if (canGetBonus) {
-          carsWithArrival.filter(_._2 <= 0).maxBy(_._2)._1 // TODO also take distance to travel into account
+          val selectedCar = if (canGetBonus) {
+          carsWithArrival.filter(_._2 <= 0).minBy{case (veh, delta) =>
+            val travelDist = vehicleLocationsAndTimes(veh)._1 - ride.from
+            val idleTime = ride.start - vehicleLocationsAndTimes(veh)._2
+            travelDist * idleTime
+          }._1
         } else {
           possibleCars.head._1
         }
