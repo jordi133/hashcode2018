@@ -1,13 +1,16 @@
 package object hashcode2018 {
 
-  case class Ride(from: (Int, Int), to: (Int, Int), start: Int, finish: Int)
+  type Location = (Int, Int)
+
+  case class Ride(from: Location, to: Location, start: Int, finish: Int)
 
   case class VehiclePlan(numberOfRides: Int, rideNumbers: Seq[Int])
 
-  implicit class TupleOps(tuple: (Int, Int)) {
+  implicit class TupleOps(tuple: Location) {
     /**
       * @return the distance between 2 locations
       */
-    def -(other: (Int, Int)): Int = Math.abs(tuple._1 - other._1) + Math.abs(tuple._2 - other._2)
+    def -(other: Location): Int = Math.abs(tuple._1 - other._1) + Math.abs(tuple._2 - other._2)
   }
+
 }

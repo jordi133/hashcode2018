@@ -15,7 +15,7 @@ case class OutputData(vehiclePlans: Seq[VehiclePlan]) {
     * Calculates the score
     */
   def score(input: InputData): Int = {
-    def scorePerVehice(plannedRides: Seq[Ride], location: (Int, Int) = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
+    def scorePerVehice(plannedRides: Seq[Ride], location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
       case ride +: rs =>
         val timeWaited = Math.max(0, ride.start - time)
         val timeAtStart = time + (ride.from - location)
