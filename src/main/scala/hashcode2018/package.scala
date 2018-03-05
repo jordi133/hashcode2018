@@ -2,7 +2,9 @@ package object hashcode2018 {
 
   type Location = (Int, Int)
 
-  case class Ride(from: Location, to: Location, start: Int, finish: Int)
+  case class Ride(id: Int, from: Location, to: Location, start: Int, finish: Int) {
+    val duration = to - from
+  }
 
   case class VehiclePlan(numberOfRides: Int, rideNumbers: Seq[Int])
 

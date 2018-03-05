@@ -10,9 +10,10 @@ object InputData {
     val data = Source.fromFile(s"input/$s").getLines().toVector
 
     val Array(rows, cols, vehicles,nrOfRides, bonus, steps) = data.head.split(" ").map(_.toInt)
-    val rides = for (line <- data.tail) yield {
+    val rides = for (i <- data.tail.indices) yield {
+      val line = data.tail(i)
       val Array(fromRow, fromCol, toRow, toCol, start, finish) = line.split(" ").map(_.toInt)
-      Ride((fromRow, fromCol), (toRow, toCol), start, finish)
+      Ride(i, (fromRow, fromCol), (toRow, toCol), start, finish)
     }
 
     InputData(rows, cols, vehicles, nrOfRides, bonus, steps, rides)
