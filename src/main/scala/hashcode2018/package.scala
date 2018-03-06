@@ -6,7 +6,9 @@ package object hashcode2018 {
     val duration = to - from
   }
 
-  case class VehiclePlan(numberOfRides: Int, rideNumbers: Seq[Int])
+  case class VehiclePlan(rideNumbers: Seq[Int]) {
+    def numberOfRides: Int = rideNumbers.size
+  }
 
   implicit class TupleOps(tuple: Location) {
     /**
