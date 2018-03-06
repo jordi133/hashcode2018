@@ -4,7 +4,9 @@ package object hashcode2018 {
 
   case class Ride(from: Location, to: Location, start: Int, finish: Int)
 
-  case class VehiclePlan(numberOfRides: Int, rideNumbers: Seq[Int])
+  case class VehiclePlan(rideNumbers: Seq[Int]) {
+    def numberOfRides: Int = rideNumbers.size
+  }
 
   implicit class TupleOps(tuple: Location) {
     /**
