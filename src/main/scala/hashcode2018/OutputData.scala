@@ -15,34 +15,34 @@ case class OutputData(vehiclePlans: Seq[VehiclePlan]) {
     * Calculates the score
     */
   def score(input: InputData): Int = {
-    def scorePerVehice(plannedRides: Seq[Ride], location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
+    def scorePerVehicle(plannedRides: Seq[Ride], location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
       case ride +: rs =>
         val timeWaited = Math.max(0, ride.start - time)
         val timeAtStart = time + (ride.from - location)
         val newLocation = ride.to
         val timeSpent = timeWaited + (ride.from - location) + (ride.to - ride.from)
         val rideScore =
-          if (timeAtStart <= ride.start) ride.from - ride.to
+          if (time + timeSpent < ride.finish) ride.from - ride.to
           else 0
         val bonus =
-          if (time + timeSpent < ride.finish) input.bonus
+          if (timeAtStart <= ride.start) input.bonus
           else 0
         val scoreGained = rideScore + bonus
-        scorePerVehice(rs, newLocation, time + timeSpent, score + scoreGained)
+        scorePerVehicle(rs, newLocation, time + timeSpent, score + scoreGained)
       case Nil =>
         score
     }
 
     val score = vehiclePlans.map { plan =>
       val rides = plan.rideNumbers.map(nr => input.rides(nr))
-      scorePerVehice(rides)
+      scorePerVehicle(rides)
     }.sum
 
     score
   }
 
   def getOutputString: String = {
-    vehiclePlans.map{plan =>
+    vehiclePlans.map { plan =>
       s"${plan.numberOfRides} ${plan.rideNumbers.mkString(" ")}"
     }.mkString(System.lineSeparator())
   }
