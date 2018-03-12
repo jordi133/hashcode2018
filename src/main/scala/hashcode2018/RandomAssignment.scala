@@ -30,8 +30,8 @@ object RandomAssignment {
 
   case class RideAssignments(assignments: Map[Vehicle, VehiclePlan]) {
     def assignRideToCar(vehicle: Vehicle, ride: Ride) = {
-      val currentVehiclePlan = assignments.getOrElse(vehicle, VehiclePlan(0, Seq.empty))
-      val newVehiclePlan = VehiclePlan(currentVehiclePlan.numberOfRides + 1, ride.id +: currentVehiclePlan.rideNumbers)
+      val currentVehiclePlan = assignments.getOrElse(vehicle, VehiclePlan(Seq.empty))
+      val newVehiclePlan = VehiclePlan(ride.id +: currentVehiclePlan.rideNumbers)
       val newAssignments = assignments.updated(vehicle, newVehiclePlan)
       RideAssignments(newAssignments)
     }
