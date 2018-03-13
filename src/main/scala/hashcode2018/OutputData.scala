@@ -2,7 +2,8 @@ package hashcode2018
 
 object OutputData {
   def fromPlanning(planning: Planning): OutputData = {
-    OutputData((for (v <- planning.vehicles) yield v.map(_.id)).map(VehiclePlan))
+    val plan = for (vehPlan <- planning.vehicles) yield VehiclePlan(vehPlan.map(_.id))
+    OutputData(plan)
   }
 }
 
@@ -21,31 +22,15 @@ case class OutputData(vehiclePlans: Seq[VehiclePlan]) {
     * Calculates the score
     */
   def score(input: InputData): Int = {
-    def scorePerVehicle(plannedRides: Seq[Ride], location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
-      case ride +: rs =>
-        val timeWaited = Math.max(0, ride.start - time)
-        val timeAtStart = time + (ride.from - location)
-        val newLocation = ride.to
-        val timeSpent = timeWaited + (ride.from - location) + (ride.to - ride.from)
-        val rideScore =
-          if (time + timeSpent < ride.finish) ride.from - ride.to
-          else 0
-        val bonus =
-          if (timeAtStart <= ride.start) input.bonus
-          else 0
-        val scoreGained = rideScore + bonus
-        scorePerVehicle(rs, newLocation, time + timeSpent, score + scoreGained)
-      case Nil =>
-        score
-    }
 
     val score = vehiclePlans.map { plan =>
       val rides = plan.rideNumbers.map(nr => input.rides(nr))
-      scorePerVehicle(rides)
+      scorePerVehicle(rides, input.bonus)
     }.sum
 
     score
   }
+
 
   def getOutputString: String = {
     vehiclePlans.map { plan =>

@@ -10,7 +10,24 @@ package object hashcode2018 {
     def numberOfRides: Int = rideNumbers.size
   }
 
-  case class Planning(vehicles: Seq[Seq[Ride]])
+    def scorePerVehicle(plannedRides: Seq[Ride], rideBonus: Int, location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
+      case ride +: rs =>
+        val timeWaited = Math.max(0, ride.start - time)
+        val timeAtStart = time + (ride.from - location)
+        val newLocation = ride.to
+        val timeSpent = timeWaited + (ride.from - location) + (ride.to - ride.from)
+        val rideScore =
+          if (time + timeSpent < ride.finish) ride.from - ride.to
+          else 0
+        val bonus: Int =
+          if (timeAtStart <= ride.start) rideBonus
+          else 0
+        val scoreGained = rideScore + bonus
+        scorePerVehicle(rs, bonus, newLocation, time + timeSpent, score + scoreGained)
+      case Nil =>
+        score
+    }
+
 
   implicit class TupleOps(tuple: Location) {
     /**
