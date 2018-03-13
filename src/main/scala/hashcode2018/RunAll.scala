@@ -1,5 +1,7 @@
 package hashcode2018
 
+import hashcode2018.swarm.GreedyOptimizer
+
 object RunAll extends App {
 
   override def main(args: Array[String]) = {
@@ -7,7 +9,8 @@ object RunAll extends App {
     val totalScore = for (file <- InputData.filenames) yield {
       val input = InputData.fromFile(file)
 
-      val output = SecondAssignment.doAssignment(input)
+//      val output = SecondAssignment.doAssignment(input)
+      val output = OutputData.fromPlanning(GreedyOptimizer.optimize(input))
 
       val score = output.score(input)
 

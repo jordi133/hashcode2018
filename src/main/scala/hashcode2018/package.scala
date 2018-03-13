@@ -10,6 +10,8 @@ package object hashcode2018 {
     def numberOfRides: Int = rideNumbers.size
   }
 
+  case class Planning(vehicles: Seq[Seq[Ride]])
+
   implicit class TupleOps(tuple: Location) {
     /**
       * @return the distance between 2 locations

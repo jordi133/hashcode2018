@@ -1,5 +1,11 @@
 package hashcode2018
 
+object OutputData {
+  def fromPlanning(planning: Planning): OutputData = {
+    OutputData((for (v <- planning.vehicles) yield v.map(_.id)).map(VehiclePlan))
+  }
+}
+
 case class OutputData(vehiclePlans: Seq[VehiclePlan]) {
 
   /**
