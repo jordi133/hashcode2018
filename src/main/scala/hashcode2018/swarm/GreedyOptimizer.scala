@@ -26,31 +26,34 @@ object GreedyOptimizer {
       * @return
       */
     def optimizeR(vehiclesToDo: Seq[Vehicle] = (0 to input.vehicles).map(_ => Vehicle()),
-                  ridesToDo: Set[Ride] = input.rides.toSet,
+                  ridesToDo: IndexedSeq[Ride] = input.rides.toVector.sortBy(_.finish),
                   vehiclesDone: Seq[Vehicle] = Seq.empty,
                  ): Planning = vehiclesToDo match {
       case v +: vs if ridesToDo.nonEmpty => // per vehicle, plan an ideal trip (maximize profit)
         // per ride in ridesToDo, calculate "profit per timestep" for this vehicle
-        getRideForVehicle(v, ridesToDo) match {
-          case Some(ride) =>
+        getIndexOfRideForVehicle(v, ridesToDo) match {
+          case index if index >= 0 =>
+            val ride = ridesToDo(index)
             val newVehicles = (v.addRide(ride) +: vs).sortBy(_.timeReady)
-            val newRidesToDo = ridesToDo - ride
-            optimizeR(newVehicles, newRidesToDo, vehiclesDone)
-          case None =>
+            val newRidesToDo = ridesToDo.take(index) ++ ridesToDo.drop(index + 1)
+            val profitableRides = newRidesToDo.dropWhile(_.finish < newVehicles.head.timeReady)
+            optimizeR(newVehicles, profitableRides, vehiclesDone)
+          case _ =>
             optimizeR(vs, ridesToDo, v +: vehiclesDone)
         }
       case _ =>
         Planning((vehiclesToDo ++ vehiclesDone).map(_.history.reverse))
     }
 
-    def getRideForVehicle(vehicle: Vehicle, ridesToDo: Set[Ride]): Option[Ride] = {
-      val profitsPerRide = ridesToDo map { ride =>
+    def getIndexOfRideForVehicle(vehicle: Vehicle, ridesToDo: IndexedSeq[Ride]): Int = {
+      val profitsPerRide = ridesToDo.indices map { index =>
+        val ride = ridesToDo(index)
         val profitPerTimeStep = vehicle.getProfitForRide(ride, input.bonus).toDouble / ((ride.from - vehicle.location) + ride.duration)
-        ride -> profitPerTimeStep
+        index -> profitPerTimeStep
       }
       val optimalRide = profitsPerRide.maxBy(_._2)
-      if (optimalRide._2 > 0) Some(optimalRide._1)
-      else None
+      if (optimalRide._2 > 0) optimalRide._1
+      else -1
     }
 
     optimizeR()
@@ -61,11 +64,6 @@ object GreedyOptimizer {
   }
 
   case class Vehicle(location: Location = (0, 0), timeReady: Int = 0, history: Seq[Ride] = Seq.empty, id: Int = Vehicle.idCounter.getAndIncrement()) {
-
-    def addRideOption(rideOption: Option[Ride]) = rideOption match {
-      case Some(ride) => addRide(ride)
-      case None => this
-    }
 
     def addRide(r: Ride): Vehicle = {
       this.copy(
