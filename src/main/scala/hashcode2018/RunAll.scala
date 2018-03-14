@@ -9,7 +9,7 @@ object RunAll extends App {
     val t0 = System.currentTimeMillis()
     val totalScore = for (file <- InputData.filenames) yield {
       val input = InputData.fromFile(file)
-      val output = OutputData.fromPlanning(GreedyOptimizer.optimize(input))
+      val output = OutputData.fromPlanning(GreedyOptimizer.optimizeBreadthFirst(input))
 
       val score = output.score(input)
 

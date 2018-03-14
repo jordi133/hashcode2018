@@ -44,6 +44,15 @@ package object hashcode2018 {
     else insertInSortedSeqR(0, seq.length)
   }
 
+  def removeItemsFromSortedSeq[T](seq: IndexedSeq[T], toRemove: IndexedSeq[T], acc: IndexedSeq[T] = Vector.empty)(f: T => Int): IndexedSeq[T] = (seq, toRemove) match {
+    case (s +: ss, r +: rs) =>
+      if (f(r) == f(s)) removeItemsFromSortedSeq(ss, rs, acc)(f)
+      else if (f(s) < f(r)) removeItemsFromSortedSeq(ss, r +: rs, s +: acc)(f)
+      else /* f(s) > f(r) */ removeItemsFromSortedSeq(s +: ss, rs, acc)(f)
+    case (s +: ss, Vector()) => removeItemsFromSortedSeq(ss, Vector(), s +: acc)(f)
+    case (Vector(), _) => acc.reverse
+  }
+
   implicit class TupleOps(tuple: Location) {
     /**
       * @return the distance between 2 locations

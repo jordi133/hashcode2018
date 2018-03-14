@@ -13,48 +13,79 @@ import hashcode2018._
   */
 
 object GreedyOptimizer {
-  def optimize(input: InputData): Planning = {
+  def optimizeBreadthFirst(input: InputData): Planning = {
     /**
       *
-      * @param vehiclesToDo     Set of vehicles including rides they are committed to
+      * @param vehiclesToDo Set of vehicles including rides they are committed to
       * @param ridesToDo    Rides that should still be looked at
       * @param vehiclesDone Rides that are planned to be done by a vehicle, but not yet final/committed
       * @return
       */
-    def optimizeR(vehiclesToDo: IndexedSeq[Vehicle] = (0 to input.vehicles).map(_ => Vehicle()),
-                  ridesToDo: IndexedSeq[Ride] = input.rides.toVector.sortBy(_.finish),
-                  vehiclesDone: IndexedSeq[Vehicle] = Vector.empty,
-                 ): Planning = vehiclesToDo match {
+    def optimizeBreadthFirstR(vehiclesToDo: IndexedSeq[Vehicle] = (0 to input.vehicles).map(_ => Vehicle()),
+                              ridesToDo: IndexedSeq[Ride] = input.rides.toVector.sortBy(_.finish),
+                              vehiclesDone: IndexedSeq[Vehicle] = Vector.empty,
+                             ): Planning = vehiclesToDo match {
       case v +: vs if ridesToDo.nonEmpty => // per vehicle, plan an ideal trip (maximize profit)
         // per ride in ridesToDo, calculate "profit per timestep" for this vehicle
-        getIndexOfRideForVehicle(v, ridesToDo) match {
+        getIndexOfOptimalRideForVehicle(v, ridesToDo, input.bonus) match {
           case index if index >= 0 =>
             val ride = ridesToDo(index)
             val newVehicles = insertInSortedSeq(v.addRide(ride), vs)(_.timeReady)
             val newRidesToDo = ridesToDo.take(index) ++ ridesToDo.drop(index + 1)
             val profitableRides = newRidesToDo.dropWhile(_.finish < newVehicles.head.timeReady)
-            optimizeR(newVehicles, profitableRides, vehiclesDone)
+            optimizeBreadthFirstR(newVehicles, profitableRides, vehiclesDone)
           case _ =>
-            optimizeR(vs, ridesToDo, v +: vehiclesDone)
+            optimizeBreadthFirstR(vs, ridesToDo, v +: vehiclesDone)
         }
       case _ =>
-        Planning((vehiclesToDo ++ vehiclesDone).map(_.history.reverse))
+        Planning((vehiclesToDo ++ vehiclesDone).map(_.getPlanning))
     }
 
-    def getIndexOfRideForVehicle(vehicle: Vehicle, ridesToDo: IndexedSeq[Ride]): Int = {
-      // TODO: early termination: at some point the price per timeunit for rides will steadily decrease, then there's
-      // no need to continue searching
-      val profitsPerRide = ridesToDo.indices map { index =>
-        val ride = ridesToDo(index)
-        val profitPerTimeStep = vehicle.getProfitForRide(ride, input.bonus).toDouble / ((ride.from - vehicle.location) + ride.duration)
-        index -> profitPerTimeStep
+    optimizeBreadthFirstR()
+  }
+
+  def optimizeDepthFirst(input: InputData): Planning = {
+    def optimizeDepthFirstR(vehiclesToDo: IndexedSeq[Vehicle] = (0 to input.vehicles).map(_ => Vehicle()),
+                            ridesToDo: IndexedSeq[Ride] = input.rides.toVector.sortBy(_.finish),
+                            vehiclesDone: IndexedSeq[Vehicle] = Vector.empty,
+                           ): Planning = vehiclesToDo match {
+      case v +: vs =>
+        val plannedVehicle= getSingleOptimalVehiclePlan(v, ridesToDo, input.bonus)
+        // TODO remove planned rides from ridesToDo
+        val newRidesToDo = removeItemsFromSortedSeq[Ride](ridesToDo, plannedVehicle)(_.finish)
+        ???
+    }
+
+    ???
+  }
+
+
+  def getIndexOfOptimalRideForVehicle(vehicle: Vehicle, ridesToDo: IndexedSeq[Ride], bonus: Int): Int = {
+    // TODO: early termination: at some point the price per timeunit for rides will steadily decrease, then there's
+    // no need to continue searching
+    val profitsPerRide = ridesToDo.indices map { index =>
+      val ride = ridesToDo(index)
+      val profitPerTimeStep = vehicle.getProfitForRide(ride, bonus).toDouble / ((ride.from - vehicle.location) + ride.duration)
+      index -> profitPerTimeStep
+    }
+    val optimalRide = profitsPerRide.maxBy(_._2)
+    if (optimalRide._2 > 0) optimalRide._1
+    else -1
+  }
+
+  def getSingleOptimalVehiclePlan(veh: Vehicle, rides: IndexedSeq[Ride], bonus: Int): IndexedSeq[Ride] = {
+    def getSingleOptimalVehiclePlanR(v: Vehicle, ridesToDo: IndexedSeq[Ride]): Seq[Ride] = {
+      val nextRide = getIndexOfOptimalRideForVehicle(v, ridesToDo, bonus)
+      if (nextRide < 0) {
+        v.getPlanning
+      } else {
+        val newVehicle = v.addRide(ridesToDo(nextRide))
+        val newRidesToDo = ridesToDo.take(nextRide) ++ ridesToDo.drop(nextRide + 1)
+        getSingleOptimalVehiclePlanR(newVehicle, newRidesToDo)
       }
-      val optimalRide = profitsPerRide.maxBy(_._2)
-      if (optimalRide._2 > 0) optimalRide._1
-      else -1
     }
 
-    optimizeR()
+    getSingleOptimalVehiclePlanR(veh, rides)
   }
 
   object Vehicle {
@@ -81,6 +112,9 @@ object GreedyOptimizer {
         else 0
       profit + bonus
     }
+
+    def getPlanning = history.reverse
+
   }
 
 }

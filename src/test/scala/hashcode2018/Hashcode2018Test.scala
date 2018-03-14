@@ -30,4 +30,34 @@ class Hashcode2018Test extends WordSpec with Matchers {
     }
   }
 
+  "removeItemsFromSortedSeq" should {
+    "remove (1,2,3) from (1,2,3,4,5,6)" in {
+      val toRemove = Vector(1,2,3)
+      val initial = Vector(1,2,3,4,5,6)
+      val expected = Vector(4,5,6)
+
+      val actual = removeItemsFromSortedSeq(initial, toRemove)(identity(_))
+
+      actual shouldBe expected
+    }
+    "remove (1,2) from (3,4,5,6)" in {
+      val toRemove = Vector(1,2)
+      val initial = Vector(3,4,5,6)
+      val expected = Vector(3,4,5,6)
+
+      val actual = removeItemsFromSortedSeq(initial, toRemove)(identity(_))
+
+      actual shouldBe expected
+    }
+    "remove (1,2) from (1,2)" in {
+      val toRemove = Vector(1,2)
+      val initial = Vector(1,2)
+      val expected = Vector()
+
+      val actual = removeItemsFromSortedSeq(initial, toRemove)(identity(_))
+
+      actual shouldBe expected
+    }
+  }
+
 }

@@ -6,7 +6,7 @@ import hashcode2018.swarm.GreedyOptimizer
 class Optimizer(input: InputData) {
 
   def optimize(popSize: Int = 50, offspringFactor: Int = 50, maxIterations: Int = 1000, maxIterationsWithoutImprovement: Int = 1) = {
-    val initialOutput = OutputData.fromPlanning(GreedyOptimizer.optimize(input))
+    val initialOutput = OutputData.fromPlanning(GreedyOptimizer.optimizeBreadthFirst(input))
 //    val initialOutput = SecondAssignment.doAssignment(input)
 
     val initialPlanning = Planning.fromInputAndOutput(input, initialOutput)
