@@ -50,13 +50,15 @@ object GreedyOptimizer {
                             vehiclesDone: IndexedSeq[Vehicle] = Vector.empty,
                            ): Planning = vehiclesToDo match {
       case v +: vs =>
-        val plannedVehicle= getSingleOptimalVehiclePlan(v, ridesToDo, input.bonus)
-        // TODO remove planned rides from ridesToDo
-        val newRidesToDo = removeItemsFromSortedSeq[Ride](ridesToDo, plannedVehicle)(_.finish)
-        ???
+        val plannedVehicle = getSingleOptimalVehiclePlan(v, ridesToDo, input.bonus)
+        val newRidesToDo = removeItemsFromSortedSeq[Ride](ridesToDo, plannedVehicle.history.reverse.toVector)(_.finish)
+        val newVehiclesDone = plannedVehicle +: vehiclesDone
+        optimizeDepthFirstR(vs, newRidesToDo, newVehiclesDone)
+      case Vector() =>
+        Planning(vehiclesDone.map(_.getPlanning))
     }
 
-    ???
+    optimizeDepthFirstR()
   }
 
 
@@ -73,15 +75,20 @@ object GreedyOptimizer {
     else -1
   }
 
-  def getSingleOptimalVehiclePlan(veh: Vehicle, rides: IndexedSeq[Ride], bonus: Int): IndexedSeq[Ride] = {
-    def getSingleOptimalVehiclePlanR(v: Vehicle, ridesToDo: IndexedSeq[Ride]): Seq[Ride] = {
-      val nextRide = getIndexOfOptimalRideForVehicle(v, ridesToDo, bonus)
-      if (nextRide < 0) {
-        v.getPlanning
-      } else {
-        val newVehicle = v.addRide(ridesToDo(nextRide))
-        val newRidesToDo = ridesToDo.take(nextRide) ++ ridesToDo.drop(nextRide + 1)
-        getSingleOptimalVehiclePlanR(newVehicle, newRidesToDo)
+  def getSingleOptimalVehiclePlan(veh: Vehicle, rides: IndexedSeq[Ride], bonus: Int): Vehicle = {
+    def getSingleOptimalVehiclePlanR(v: Vehicle, ridesToDo: IndexedSeq[Ride]): Vehicle = {
+      if (ridesToDo.isEmpty) {
+        v
+      }
+      else {
+        val nextRide = getIndexOfOptimalRideForVehicle(v, ridesToDo, bonus)
+        if (nextRide < 0) {
+          v
+        } else {
+          val newVehicle = v.addRide(ridesToDo(nextRide))
+          val newRidesToDo = ridesToDo.take(nextRide) ++ ridesToDo.drop(nextRide + 1)
+          getSingleOptimalVehiclePlanR(newVehicle, newRidesToDo)
+        }
       }
     }
 
