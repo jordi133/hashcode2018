@@ -10,24 +10,39 @@ package object hashcode2018 {
     def numberOfRides: Int = rideNumbers.size
   }
 
-    def scorePerVehicle(plannedRides: Seq[Ride], rideBonus: Int, location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
-      case ride +: rs =>
-        val timeWaited = Math.max(0, ride.start - time)
-        val timeAtStart = time + (ride.from - location)
-        val newLocation = ride.to
-        val timeSpent = timeWaited + (ride.from - location) + (ride.to - ride.from)
-        val rideScore =
-          if (time + timeSpent < ride.finish) ride.from - ride.to
-          else 0
-        val bonus: Int =
-          if (timeAtStart <= ride.start) rideBonus
-          else 0
-        val scoreGained = rideScore + bonus
-        scorePerVehicle(rs, bonus, newLocation, time + timeSpent, score + scoreGained)
-      case Nil =>
-        score
+  def scorePerVehicle(plannedRides: Seq[Ride], rideBonus: Int, location: Location = (0, 0), time: Int = 0, score: Int = 0): Int = plannedRides match {
+    case ride +: rs =>
+      val timeWaited = Math.max(0, ride.start - time)
+      val timeAtStart = time + (ride.from - location)
+      val newLocation = ride.to
+      val timeSpent = timeWaited + (ride.from - location) + (ride.to - ride.from)
+      val rideScore =
+        if (time + timeSpent < ride.finish) ride.from - ride.to
+        else 0
+      val bonus: Int =
+        if (timeAtStart <= ride.start) rideBonus
+        else 0
+      val scoreGained = rideScore + bonus
+      scorePerVehicle(rs, bonus, newLocation, time + timeSpent, score + scoreGained)
+    case Nil =>
+      score
+  }
+
+  def insertInSortedSeq[T](item: T, seq: IndexedSeq[T])(f: T => Int): IndexedSeq[T] = {
+    def insertInSortedSeqR(x: Int, y: Int): IndexedSeq[T] = {
+      val m = (x + y) / 2
+      if (x + 1 == y) {
+        seq.take(m + 1) ++ (item +: seq.drop(m + 1))
+      } else if (f(item) <= f(seq(m))) {
+        insertInSortedSeqR(x, m)
+      } else /*if (f(item) > f(seq(m)))*/ {
+        insertInSortedSeqR(m, y)
+      }
     }
 
+    if (f(item) < f(seq.head)) item +: seq
+    else insertInSortedSeqR(0, seq.length)
+  }
 
   implicit class TupleOps(tuple: Location) {
     /**

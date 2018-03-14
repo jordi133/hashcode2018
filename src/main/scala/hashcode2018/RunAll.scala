@@ -6,6 +6,7 @@ object RunAll extends App {
 
   override def main(args: Array[String]) = {
 
+    val t0 = System.currentTimeMillis()
     val totalScore = for (file <- InputData.filenames) yield {
       val input = InputData.fromFile(file)
       val output = OutputData.fromPlanning(GreedyOptimizer.optimize(input))
@@ -17,7 +18,7 @@ object RunAll extends App {
       score
 
     }
-    println(s"Total score: ${totalScore.sum}")
+    println(s"Total score: ${totalScore.sum}, time taken: ${System.currentTimeMillis() - t0}")
 
   }
 }
