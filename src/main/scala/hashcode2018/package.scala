@@ -40,7 +40,7 @@ package object hashcode2018 {
       }
     }
 
-    if (f(item) < f(seq.head)) item +: seq
+    if (seq.isEmpty || f(item) < f(seq.head)) item +: seq
     else insertInSortedSeqR(0, seq.length)
   }
 
