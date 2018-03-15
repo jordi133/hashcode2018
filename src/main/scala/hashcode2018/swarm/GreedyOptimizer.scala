@@ -10,12 +10,14 @@ import scala.annotation.tailrec
 /**
   *
   * TODO:
-  * - Add other greedy appraoch in which 1 vehicle first plans multiple rides in an optimal way
-  * - Then take combination of both greedy approaches
+  * - Add multiple features in choosing next ride in breadth first approach
   */
 
 class GreedyOptimizer(input: InputData) {
 
+  /**
+    * Combines depth and breadth first approach, using the indicated portion of all vehicles for depth first
+    */
   def optimizeCombined(depthFirstFactor: Double): Planning = {
     val vehicles = (0 to input.vehicles).map(_ => Vehicle())
 
@@ -33,7 +35,6 @@ class GreedyOptimizer(input: InputData) {
   }
 
   /**
-    *
     * @param vehiclesToDo Set of vehicles including rides they are committed to
     * @param ridesToDo    Rides that should still be looked at
     * @param vehiclesDone Rides that are planned to be done by a vehicle, but not yet final/committed
@@ -59,28 +60,6 @@ class GreedyOptimizer(input: InputData) {
     case _ =>
       Planning((vehiclesToDo ++ vehiclesDone).map(_.getPlanning))
   }
-
-  //  def optimizeBreadthFirstR(vehiclesToDo: IndexedSeq[Vehicle] = (0 to input.vehicles).map(_ => Vehicle()),
-  //                            ridesToDo: IndexedSeq[Ride] = input.rides.toVector.sortBy(_.finish),
-  //                            vehiclesDone: IndexedSeq[Vehicle] = Vector.empty,
-  //                           ): Planning = vehiclesToDo match {
-  //    case v +: vs if ridesToDo.nonEmpty => // per vehicle, plan an ideal trip (maximize profit)
-  //      // per ride in ridesToDo, calculate "profit per timestep" for this vehicle
-  //      getIndexOfOptimalRideForVehicle(v, ridesToDo, input.bonus) match {
-  //        case index if index >= 0 =>
-  //          val ride = ridesToDo(index)
-  //          val newVehicles = insertInSortedSeq(v.addRide(ride), vs)(_.timeReady)
-  //          val newRidesToDo = ridesToDo.take(index) ++ ridesToDo.drop(index + 1)
-  //          val profitableRides = newRidesToDo.dropWhile(_.finish < newVehicles.head.timeReady)
-  //          optimizeBreadthFirstR(newVehicles, profitableRides, vehiclesDone)
-  //        case _ =>
-  //          optimizeBreadthFirstR(vs, ridesToDo, v +: vehiclesDone)
-  //      }
-  //    case _ =>
-  //      Planning((vehiclesToDo ++ vehiclesDone).map(_.getPlanning))
-  //  }
-  //
-  //  optimizeBreadthFirstR()
 
   @tailrec
   final def optimizeDepthFirst(vehiclesToDo: IndexedSeq[Vehicle] = (0 to input.vehicles).map(_ => Vehicle()),
