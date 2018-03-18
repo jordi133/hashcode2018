@@ -1,8 +1,6 @@
-package hashcode2018.swarm
+package hashcode2018
 
 import java.util.concurrent.atomic.AtomicInteger
-
-import hashcode2018._
 
 import scala.annotation.tailrec
 

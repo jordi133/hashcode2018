@@ -1,7 +1,5 @@
 package hashcode2018
 
-import hashcode2018.swarm.GreedyOptimizer
-
 object RunAll extends App {
 
   override def main(args: Array[String]) = {
@@ -13,7 +11,6 @@ object RunAll extends App {
 
       val scores = for (f <- 0 to 10) yield {
         val factor = 0.1 * f
-//        val output = OutputData.fromPlanning(opt.optimizeBreadthFirst())
         val output = OutputData.fromPlanning(opt.optimizeCombined(factor))
 
         val score = output.score(input)
